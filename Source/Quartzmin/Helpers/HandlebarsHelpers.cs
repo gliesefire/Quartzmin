@@ -37,9 +37,21 @@ internal class HandlebarsHelpers
         h.RegisterHelper("SerializeTypeHandler",
             (o, c, a) => o.WriteSafeString(_services.TypeHandlers.Serialize((TypeHandlerBase)c.Value)));
         h.RegisterHelper("Disabled",
-            (o, c, a) => { if (IsTrue(a[0])) { o.Write("disabled"); } });
+            (o, c, a) =>
+            {
+                if (IsTrue(a[0]))
+                {
+                    o.Write("disabled");
+                }
+            });
         h.RegisterHelper("Checked",
-            (o, c, a) => { if (IsTrue(a[0])) { o.Write("checked"); } });
+            (o, c, a) =>
+            {
+                if (IsTrue(a[0]))
+                {
+                    o.Write("checked");
+                }
+            });
         h.RegisterHelper("nvl",
             (o, c, a) => o.Write(a[a[0] == null ? 1 : 0]));
         h.RegisterHelper("not", (o, c, a) => o.Write(IsTrue(a[0]) ? "False" : "True"));
@@ -113,7 +125,7 @@ internal class HandlebarsHelpers
         var uriToBeAppended = uri;
         var anchorText = string.Empty;
 
-        // If there is an anchor, then the query string must be inserted before its first occurence.
+        // If there is an anchor, then the query string must be inserted before its first occurrence.
         if (anchorIndex != -1)
         {
             anchorText = uri.Substring(anchorIndex);
@@ -177,7 +189,8 @@ internal class HandlebarsHelpers
         string controller = null;
         string action = (arguments[0] as Page)?.ActionName ?? (string)arguments[0];
 
-        if (arguments.Length >= 2) // [actionName, controllerName/routeValues ]
+        // [actionName, controllerName/routeValues ]
+        if (arguments.Length >= 2)
         {
             switch (arguments[1])
             {
@@ -195,7 +208,8 @@ internal class HandlebarsHelpers
             }
         }
 
-        if (arguments.Length == 3) // [actionName, controllerName, routeValues]
+         // [actionName, controllerName, routeValues]
+        if (arguments.Length == 3)
         {
             routeValues = (IDictionary<string, object>)arguments[2];
         }

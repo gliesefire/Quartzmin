@@ -271,7 +271,8 @@
                 desc = CronExpressionDescriptor.ExpressionDescriptor.GetDescription(cron);
             }
             catch
-            { }
+            {
+            }
 
             List<string> nextDates = new List<string>();
 
@@ -292,7 +293,8 @@
                 }
             }
             catch
-            { }
+            {
+            }
 
             return Json(new { Description = desc, Next = nextDates });
         }

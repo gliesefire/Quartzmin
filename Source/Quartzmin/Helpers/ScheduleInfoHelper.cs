@@ -17,13 +17,17 @@ namespace Quartzmin.Helpers
             {
                 pausedJobGroups = await GetGroupPauseStateAsync(await scheduler.GetJobGroupNames().ConfigureAwait(false), async x => await scheduler.IsJobGroupPaused(x).ConfigureAwait(false)).ConfigureAwait(false);
             }
-            catch (NotImplementedException) { }
+            catch (NotImplementedException)
+            {
+            }
 
             try
             {
                 pausedTriggerGroups = await GetGroupPauseStateAsync(await scheduler.GetTriggerGroupNames().ConfigureAwait(false), async x => await scheduler.IsTriggerGroupPaused(x).ConfigureAwait(false)).ConfigureAwait(false);
             }
-            catch (NotImplementedException) { }
+            catch (NotImplementedException)
+            {
+            }
 
             int? failedJobs = null;
             int executedJobs = metadata.NumberOfJobsExecuted;

@@ -13,10 +13,11 @@ namespace Quartzmin.Hubs
             await Clients.All.SendAsync("Update", scheduleInfo).ConfigureAwait(false);
         }
 
-        public async Task UpdateHistoryAsync()
+        public Task UpdateHistoryAsync()
         {
             // TODO: read from partial view file
             // Handlebars.Compile()
+            return Task.CompletedTask;
         }
     }
 }

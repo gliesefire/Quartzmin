@@ -9,7 +9,7 @@
         {
             if (value is string str)
             {
-                return (str.IndexOf('\n') != -1) == IsMultiline;
+                return str.IndexOf('\n') != -1 == IsMultiline;
             }
 
             return false;

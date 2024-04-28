@@ -86,17 +86,12 @@ namespace Quartzmin.Helpers
 
         private static string FirstCharToLower(string input)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
             {
                 return input;
             }
 
-            return input[0].ToString().ToLower() + input.Substring(1);
+            return string.Concat(input[0].ToString().ToLower(), input.AsSpan(1));
         }
-    }
-
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field , AllowMultiple = false)]
-    public class SkipValidationAttribute : Attribute
-    {
     }
 }

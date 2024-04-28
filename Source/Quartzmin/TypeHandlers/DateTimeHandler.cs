@@ -31,7 +31,7 @@
 
                 if (IgnoreTimeComponent == missingTime || IsUtc)
                 {
-                    return (IsUtc == (dt.Kind == DateTimeKind.Utc));
+                    return IsUtc == (dt.Kind == DateTimeKind.Utc);
                 }
             }
 
@@ -67,7 +67,7 @@
 
         public override string ConvertToString(object value)
         {
-            return String.Format(CultureInfo.InvariantCulture, $"{{0:{GetExpectedFormat()}}}", value);
+            return string.Format(CultureInfo.InvariantCulture, $"{{0:{GetExpectedFormat()}}}", value);
         }
     }
 }

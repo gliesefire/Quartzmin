@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Quartzmin.Helpers
 {
     public class JsonErrorResponseAttribute : ActionFilterAttribute
     {
-        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings();
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings();
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
             if (context.Exception != null)
             {
                 context.Result =
-                    new JsonResult(new { ExceptionMessage = context.Exception.Message }, _serializerSettings)
+                    new JsonResult(new { ExceptionMessage = context.Exception.Message }, SerializerSettings)
                     {
                         StatusCode = 400
                     };

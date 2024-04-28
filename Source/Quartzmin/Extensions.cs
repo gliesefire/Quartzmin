@@ -213,7 +213,8 @@ internal static class Extensions
                     }
                 }
 
-                if (model.SelectedType == null) // if there is no suitable TypeHandler, create dynamic one
+                // if there is no suitable TypeHandler, create dynamic one
+                if (model.SelectedType == null)
                 {
                     Type t = model.Value.GetType();
 
@@ -481,7 +482,8 @@ internal static class Extensions
                 duration = entry.FinishedTimeUtc - entry.ActualFireTimeUtc;
             }
 
-            if (entry.Vetoed == false && entry.FinishedTimeUtc == null) // still running
+            // still running
+            if (entry.Vetoed == false && entry.FinishedTimeUtc == null)
             {
                 duration = DateTime.UtcNow - entry.ActualFireTimeUtc;
                 cssClass = "running";

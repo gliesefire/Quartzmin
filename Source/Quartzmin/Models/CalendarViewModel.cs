@@ -36,7 +36,7 @@ namespace Quartzmin.Models
         {
             ModelValidator.ValidateObject(this, errors, camelCase: false);
 
-            if (knownCalendars.TryGetValue(Type, out var o))
+            if (KnownCalendars.TryGetValue(Type, out var o))
             {
                 o.Validator(this, errors);
             }
@@ -48,17 +48,17 @@ namespace Quartzmin.Models
 
         public static CalendarViewModel FromCalendar(ICalendar calendar)
         {
-            if (converters.TryGetValue(calendar.GetType(), out var modelFactory))
+            if (Converters.TryGetValue(calendar.GetType(), out var modelFactory))
             {
                 return modelFactory(calendar);
             }
 
             if (calendar is BaseCalendar)
             {
-                return converters[typeof(BaseCalendar)](calendar);
+                return Converters[typeof(BaseCalendar)](calendar);
             }
 
-            return converters[typeof(ICalendar)](calendar);
+            return Converters[typeof(ICalendar)](calendar);
         }
 
         private class CalendarHandler
@@ -79,7 +79,7 @@ namespace Quartzmin.Models
 
         public ICalendar BuildCalendar()
         {
-            if (knownCalendars.TryGetValue(Type, out var o))
+            if (KnownCalendars.TryGetValue(Type, out var o))
             {
                 return o.Builder(this);
             }
@@ -87,7 +87,7 @@ namespace Quartzmin.Models
             throw new InvalidOperationException("Unsupported Type: " + Type);
         }
 
-        private static readonly Dictionary<string, CalendarHandler> knownCalendars = new Dictionary<string, CalendarHandler>()
+        private static readonly Dictionary<string, CalendarHandler> KnownCalendars = new Dictionary<string, CalendarHandler>()
         {
             ["annual"] = new CalendarHandler()
             {
@@ -246,7 +246,7 @@ namespace Quartzmin.Models
             }
         };
 
-        private static readonly Dictionary<Type, Func<ICalendar, CalendarViewModel>> converters = new Dictionary<Type, Func<ICalendar, CalendarViewModel>>()
+        private static readonly Dictionary<Type, Func<ICalendar, CalendarViewModel>> Converters = new Dictionary<Type, Func<ICalendar, CalendarViewModel>>()
         {
             [typeof(AnnualCalendar)] = calendar =>
             {

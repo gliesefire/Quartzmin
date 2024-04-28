@@ -21,9 +21,9 @@ namespace CronExpressionDescriptor
 
          */
 
-        private string m_expression;
-        private Options m_options;
-        private CultureInfo m_en_culture;
+        private readonly string _expression;
+        private readonly Options _options;
+        private readonly CultureInfo _en_culture;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpressionParser"/> class
@@ -32,9 +32,9 @@ namespace CronExpressionDescriptor
         /// <param name="options">Parsing options</param>
         public ExpressionParser(string expression, Options options)
         {
-            m_expression = expression;
-            m_options = options;
-            m_en_culture = new CultureInfo("en-US"); // Default to English
+            _expression = expression;
+            _options = options;
+            _en_culture = new CultureInfo("en-US"); // Default to English
         }
 
         /// <summary>
@@ -46,17 +46,13 @@ namespace CronExpressionDescriptor
             // Initialize all elements of parsed array to empty strings
             string[] parsed = new string[7].Select(el => string.Empty).ToArray();
 
-            if (string.IsNullOrEmpty(m_expression))
+            if (string.IsNullOrEmpty(_expression))
             {
-#if NET_STANDARD_1X
-                throw new Exception("Field 'expression' not found.");
-#else
                 throw new MissingFieldException("Field 'expression' not found.");
-#endif
             }
             else
             {
-                string[] expressionPartsTemp = m_expression.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] expressionPartsTemp = _expression.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (expressionPartsTemp.Length < 5)
                 {
@@ -149,7 +145,7 @@ namespace CronExpressionDescriptor
             }
 
             // Handle DayOfWeekStartIndexZero option where SUN=1 rather than SUN=0
-            if (!m_options.DayOfWeekStartIndexZero)
+            if (!_options.DayOfWeekStartIndexZero)
             {
                 expressionParts[5] = DecreaseDaysOfWeek(expressionParts[5]);
             }
@@ -172,7 +168,7 @@ namespace CronExpressionDescriptor
             for (int i = 1; i <= 12; i++)
             {
                 DateTime currentMonth = new DateTime(DateTime.Now.Year, i, 1);
-                string currentMonthDescription = currentMonth.ToString("MMM", m_en_culture).ToUpperInvariant();
+                string currentMonthDescription = currentMonth.ToString("MMM", _en_culture).ToUpperInvariant();
                 expressionParts[4] = Regex.Replace(expressionParts[4], currentMonthDescription, i.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
             }
 
@@ -199,17 +195,16 @@ namespace CronExpressionDescriptor
                     - DOW part '3/2' will be converted to '3-6/2' (every 2 days between Tuesday and Saturday)
                 */
 
-                if (expressionParts[i].Contains("/")
+                if (expressionParts[i].Contains('/')
                     && expressionParts[i].IndexOfAny(new char[] { '*', '-', ',' }) == -1)
                 {
-                    string stepRangeThrough = null;
-                    switch (i)
+                    var stepRangeThrough = i switch
                     {
-                        case 4: stepRangeThrough = "12"; break;
-                        case 5: stepRangeThrough = "6"; break;
-                        case 6: stepRangeThrough = "9999"; break;
-                        default: stepRangeThrough = null; break;
-                    }
+                        4 => "12",
+                        5 => "6",
+                        6 => "9999",
+                        _ => null,
+                    };
 
                     if (stepRangeThrough != null)
                     {
@@ -222,12 +217,11 @@ namespace CronExpressionDescriptor
 
         private static string DecreaseDaysOfWeek(string dayOfWeekExpressionPart)
         {
-            char[] dowChars = dayOfWeekExpressionPart.ToCharArray();
+            var dowChars = dayOfWeekExpressionPart.ToCharArray();
             for (int i = 0; i < dowChars.Length; i++)
             {
-                int charNumeric;
-                if ((i == 0 || dowChars[i - 1] != '#' && dowChars[i - 1] != '/')
-                    && int.TryParse(dowChars[i].ToString(), out charNumeric))
+                if ((i == 0 || (dowChars[i - 1] != '#' && dowChars[i - 1] != '/'))
+                    && int.TryParse(dowChars[i].ToString(), out var charNumeric))
                 {
                     dowChars[i] = (charNumeric - 1).ToString()[0];
                 }

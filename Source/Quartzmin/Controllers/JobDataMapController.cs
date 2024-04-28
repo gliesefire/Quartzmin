@@ -28,7 +28,8 @@ namespace Quartzmin.Controllers
             // phase 1: direct conversion
             object newValue = targetType.ConvertFrom(oldValue);
 
-            if (oldValue != null && newValue == null) // if phase 1 failed
+            // if phase 1 failed
+            if (oldValue != null && newValue == null)
             {
                 // phase 2: conversion using invariant string
                 var str = selectedType.ConvertToString(oldValue);

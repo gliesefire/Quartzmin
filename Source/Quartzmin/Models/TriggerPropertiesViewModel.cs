@@ -8,10 +8,14 @@ namespace Quartzmin.Models
         public string TimeFormat { get; } = DateTimeSettings.DefaultTimeFormat;
         public string DateTimeFormat { get => DateFormat + " " + TimeFormat; }
 
-        [SkipValidation] public SimpleTriggerViewModel Simple { get; set; } = new SimpleTriggerViewModel();
-        [SkipValidation] public DailyTriggerViewModel Daily { get; set; } = new DailyTriggerViewModel();
-        [SkipValidation] public CronTriggerViewModel Cron { get; set; } = new CronTriggerViewModel();
-        [SkipValidation] public CalendarTriggerViewModel Calendar { get; set; } = new CalendarTriggerViewModel();
+        [SkipValidation]
+        public SimpleTriggerViewModel Simple { get; set; } = new SimpleTriggerViewModel();
+        [SkipValidation]
+        public DailyTriggerViewModel Daily { get; set; } = new DailyTriggerViewModel();
+        [SkipValidation]
+        public CronTriggerViewModel Cron { get; set; } = new CronTriggerViewModel();
+        [SkipValidation]
+        public CalendarTriggerViewModel Calendar { get; set; } = new CalendarTriggerViewModel();
 
         public bool IsNew { get; set; }
 

@@ -7,10 +7,10 @@
     {
         public Options()
         {
-            this.ThrowExceptionOnParseError = true;
-            this.Verbose = false;
-            this.DayOfWeekStartIndexZero = true;
-            this.Use24HourTimeFormat = true;
+            ThrowExceptionOnParseError = true;
+            Verbose = false;
+            DayOfWeekStartIndexZero = true;
+            Use24HourTimeFormat = true;
         }
 
         public bool ThrowExceptionOnParseError { get; set; }

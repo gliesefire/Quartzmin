@@ -11,7 +11,7 @@ namespace Quartz.Plugins.RecentHistory.Impl
     {
         public string SchedulerName { get; set; }
 
-        private Dictionary<string, ExecutionHistoryEntry> _data = new Dictionary<string, ExecutionHistoryEntry>();
+        private readonly Dictionary<string, ExecutionHistoryEntry> _data = new Dictionary<string, ExecutionHistoryEntry>();
         private DateTime _nextPurgeTime = DateTime.UtcNow;
         private int _updatesFromLastPurge;
         private int _totalJobsExecuted = 0;

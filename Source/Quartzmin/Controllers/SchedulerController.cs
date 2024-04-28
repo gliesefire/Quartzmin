@@ -19,14 +19,18 @@ public class SchedulerController : PageControllerBase
             pausedJobGroups = await GetGroupPauseStateAsync(await Scheduler.GetJobGroupNames().ConfigureAwait(false),
                 async x => await Scheduler.IsJobGroupPaused(x).ConfigureAwait(false)).ConfigureAwait(false);
         }
-        catch (NotImplementedException) { }
+        catch (NotImplementedException)
+        {
+        }
 
         try
         {
             pausedTriggerGroups = await GetGroupPauseStateAsync(await Scheduler.GetTriggerGroupNames().ConfigureAwait(false),
                 async x => await Scheduler.IsTriggerGroupPaused(x).ConfigureAwait(false)).ConfigureAwait(false);
         }
-        catch (NotImplementedException) { }
+        catch (NotImplementedException)
+        {
+        }
 
         int? failedJobs = null;
         int executedJobs = metadata.NumberOfJobsExecuted;
