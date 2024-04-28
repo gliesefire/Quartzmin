@@ -1,11 +1,9 @@
-﻿using System.IO;
-
-namespace Quartzmin.Models
+﻿namespace Quartzmin.Models
 {
     public class FormFile
     {
-        private readonly Microsoft.AspNetCore.Http.IFormFile _file;
-        public FormFile(Microsoft.AspNetCore.Http.IFormFile file) => _file = file;
+        private readonly IFormFile _file;
+        public FormFile(IFormFile file) => _file = file;
 
         public Stream GetStream() => _file.OpenReadStream();
 

@@ -10,9 +10,9 @@ namespace Quartzmin
 {
     public static class DemoScheduler
     {
-        public static async Task<IScheduler> Create(bool start = true)
+        public static async Task<IScheduler> CreateAsync(bool start = true)
         {
-            var scheduler = await StdSchedulerFactory.GetDefaultScheduler();
+            var scheduler = await StdSchedulerFactory.GetDefaultScheduler().ConfigureAwait(false);
 
             {
                 var jobData = new JobDataMap();
@@ -30,7 +30,7 @@ namespace Quartzmin
                     .StartNow()
                     .WithCronSchedule("0 0 8 1/1 * ? *")
                     .Build();
-                await scheduler.ScheduleJob(job, trigger);
+                await scheduler.ScheduleJob(job, trigger).ConfigureAwait(false);
 
                 trigger = TriggerBuilder.Create()
                     .WithIdentity("MonthlySales")
@@ -38,8 +38,8 @@ namespace Quartzmin
                     .StartNow()
                     .WithCronSchedule("0 0 12 1 1/1 ? *")
                     .Build();
-                await scheduler.ScheduleJob(trigger);
-                await scheduler.PauseTrigger(trigger.Key);
+                await scheduler.ScheduleJob(trigger).ConfigureAwait(false);
+                await scheduler.PauseTrigger(trigger.Key).ConfigureAwait(false);
 
                 trigger = TriggerBuilder.Create()
                     .WithIdentity("HourlySales")
@@ -47,22 +47,22 @@ namespace Quartzmin
                     .StartNow()
                     .WithSimpleSchedule(x => x.WithIntervalInHours(1).RepeatForever())
                     .Build();
-                await scheduler.ScheduleJob(trigger);
+                await scheduler.ScheduleJob(trigger).ConfigureAwait(false);
             }
 
             {
                 var job = JobBuilder.Create<DummyJob>().WithIdentity("Job1").StoreDurably().Build();
-                await scheduler.AddJob(job, false);
+                await scheduler.AddJob(job, false).ConfigureAwait(false);
                 job = JobBuilder.Create<DummyJob>().WithIdentity("Job2").StoreDurably().Build();
-                await scheduler.AddJob(job, false);
+                await scheduler.AddJob(job, false).ConfigureAwait(false);
                 job = JobBuilder.Create<DummyJob>().WithIdentity("Job3").StoreDurably().Build();
-                await scheduler.AddJob(job, false);
+                await scheduler.AddJob(job, false).ConfigureAwait(false);
                 job = JobBuilder.Create<DummyJob>().WithIdentity("Job4").StoreDurably().Build();
-                await scheduler.AddJob(job, false);
+                await scheduler.AddJob(job, false).ConfigureAwait(false);
                 job = JobBuilder.Create<DummyJob>().WithIdentity("Job5").StoreDurably().Build();
-                await scheduler.AddJob(job, false);
+                await scheduler.AddJob(job, false).ConfigureAwait(false);
                 job = JobBuilder.Create<DummyJob>().WithIdentity("Send SMS", "CRITICAL").StoreDurably().RequestRecovery().Build();
-                await scheduler.AddJob(job, false);
+                await scheduler.AddJob(job, false).ConfigureAwait(false);
 
                 var trigger = TriggerBuilder.Create()
                     .WithIdentity("PushAds  (US)")
@@ -71,7 +71,7 @@ namespace Quartzmin
                     .StartNow()
                     .WithCronSchedule("0 0/5 * 1/1 * ? *")
                     .Build();
-                await scheduler.ScheduleJob(trigger);
+                await scheduler.ScheduleJob(trigger).ConfigureAwait(false);
 
                 trigger = TriggerBuilder.Create()
                     .WithIdentity("PushAds (EU)")
@@ -80,11 +80,11 @@ namespace Quartzmin
                     .StartNow()
                     .WithCronSchedule("0 0/7 * 1/1 * ? *")
                     .Build();
-                await scheduler.ScheduleJob(trigger);
-                await scheduler.PauseTriggers(GroupMatcher<TriggerKey>.GroupEquals("LONGRUNNING"));
+                await scheduler.ScheduleJob(trigger).ConfigureAwait(false);
+                await scheduler.PauseTriggers(GroupMatcher<TriggerKey>.GroupEquals("LONGRUNNING")).ConfigureAwait(false);
 
                 job = JobBuilder.Create<DummyJob>().WithIdentity("Send Push", "CRITICAL").StoreDurably().RequestRecovery().Build();
-                await scheduler.AddJob(job, false);
+                await scheduler.AddJob(job, false).ConfigureAwait(false);
             }
 
             {
@@ -98,17 +98,19 @@ namespace Quartzmin
                     .StartNow()
                     .WithSimpleSchedule(x => x.WithIntervalInSeconds(5).RepeatForever())
                     .Build();
-                await scheduler.ScheduleJob(job, trigger);
+                await scheduler.ScheduleJob(job, trigger).ConfigureAwait(false);
                 trigger = TriggerBuilder.Create()
                     .WithIdentity("CSV_big", "LONGRUNNING")
                     .ForJob(job)
                     .StartNow()
                     .WithDailyTimeIntervalSchedule(x=>x.OnMondayThroughFriday())
                     .Build();
-                await scheduler.ScheduleJob(trigger);
+                await scheduler.ScheduleJob(trigger).ConfigureAwait(false);
             }
             if (start)
-                await scheduler.Start();
+            {
+                await scheduler.Start().ConfigureAwait(false);
+            }
 
             return scheduler;
         }
@@ -121,10 +123,12 @@ namespace Quartzmin
             {
                 Debug.WriteLine("DummyJob > " + DateTime.Now);
 
-                await Task.Delay(TimeSpan.FromSeconds(Random.Next(1, 20)));
+                await Task.Delay(TimeSpan.FromSeconds(Random.Next(1, 20))).ConfigureAwait(false);
 
                 if (Random.Next(2) == 0)
+                {
                     throw new Exception("Fatal error example!");
+                }
             }
         }
 
@@ -139,10 +143,12 @@ namespace Quartzmin
 
                 context.JobDetail.JobDataMap.Put("LastExecuted", DateTime.Now);
 
-                await Task.Delay(TimeSpan.FromSeconds(Random.Next(1, 5)));
+                await Task.Delay(TimeSpan.FromSeconds(Random.Next(1, 5))).ConfigureAwait(false);
 
                 if (Random.Next(4) == 0)
+                {
                     throw new Exception("Fatal error example!");
+                }
             }
         }
     }

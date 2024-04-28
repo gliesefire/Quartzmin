@@ -1,17 +1,20 @@
 ﻿using Quartzmin;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NetCoreSelfHost
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
-            var scheduler = DemoScheduler.Create().Result;
-            scheduler.Start();
+            var scheduler = await DemoScheduler.CreateAsync();
+            await scheduler.Start();
 
             while (!scheduler.IsShutdown)
+            {
                 Thread.Sleep(500);
+            }
         }
     }
 }

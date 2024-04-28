@@ -11,10 +11,14 @@
         public override object ConvertFrom(object value)
         {
             if (value is bool)
+            {
                 return value;
+            }
 
             if (value is string str && bool.TryParse(str, out var result))
+            {
                 return result;
+            }
 
             return null;
         }

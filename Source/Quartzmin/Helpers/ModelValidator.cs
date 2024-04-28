@@ -1,9 +1,4 @@
-﻿using Quartzmin.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Quartzmin.Helpers
 {
@@ -18,7 +13,7 @@ namespace Quartzmin.Helpers
         }
 
         public static void Validate<T>(IEnumerable<T> collection, ICollection<ValidationError> errors)
-            where T: IHasValidation
+            where T : IHasValidation
         {
             foreach (var item in collection)
             {
@@ -38,7 +33,9 @@ namespace Quartzmin.Helpers
             foreach (var p in members.OfType<PropertyInfo>())
             {
                 if (p.GetCustomAttribute<SkipValidationAttribute>() != null)
+                {
                     continue;
+                }
 
                 var required = p.GetCustomAttribute<RequiredAttribute>();
 
@@ -63,37 +60,38 @@ namespace Quartzmin.Helpers
             }
 
             if (ownerField == null || ownerField.Length == 0)
+            {
                 return field;
+            }
 
             var path = string.Join(".", ownerField.Skip(1));
 
             if (!string.IsNullOrEmpty(path))
+            {
                 path += ".";
+            }
 
             return $"{ownerField[0]}[{path}{field}]";
         }
 
-        static string[] FirstCharToLower(params string[] inputs)
+        private static string[] FirstCharToLower(params string[] inputs)
         {
             if (inputs == null)
+            {
                 return null;
+            }
+
             return inputs.Select(x => FirstCharToLower(x)).ToArray();
         }
 
-        static string FirstCharToLower(string input)
+        private static string FirstCharToLower(string input)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
+            {
                 return input;
+            }
 
-            return input[0].ToString().ToLower() + input.Substring(1);
+            return string.Concat(input[0].ToString().ToLower(), input.AsSpan(1));
         }
-
-
-    }
-
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field , AllowMultiple = false)]
-    public class SkipValidationAttribute : Attribute
-    {
-
     }
 }

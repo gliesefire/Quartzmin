@@ -19,7 +19,10 @@ internal static class JobDataMapRequest
             {
                 string field = item.Key.Substring(0, item.Key.Length - g.Length - 1);
                 if (!map.ContainsKey(g))
+                {
                     map[g] = new Dictionary<string, object>();
+                }
+
                 map[g][field] = item.Value;
             }
         }
@@ -39,14 +42,16 @@ internal static class JobDataMapRequest
         this HttpRequest request,
         bool includeRowIndex = true)
     {
-        return await GetJobDataMapFormAsync(await request.GetFormDataAsync(), includeRowIndex);
+        return await GetJobDataMapFormAsync(await request.GetFormDataAsync().ConfigureAwait(false), includeRowIndex).ConfigureAwait(false);
     }
 
     private static string GetJobDataMapFieldGroup(string field)
     {
         var n = field.LastIndexOf(':');
         if (n == -1)
+        {
             return null;
+        }
 
         return field.Substring(n + 1);
     }

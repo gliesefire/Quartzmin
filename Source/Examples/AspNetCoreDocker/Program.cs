@@ -9,13 +9,13 @@ namespace AspNetCoreDocker
     {
         public static void Main(string[] args)
         {
-            var scheduler = DemoScheduler.Create().Result;
+            var scheduler = DemoScheduler.CreateAsync().Result;
 
-            var host = WebHost.CreateDefaultBuilder(args).Configure(app => 
+            var host = WebHost.CreateDefaultBuilder(args).Configure(app =>
             {
                 app.UseQuartzmin(new QuartzminOptions() { Scheduler = scheduler });
 
-            }).ConfigureServices(services => 
+            }).ConfigureServices(services =>
             {
                 services.AddQuartzmin();
 
@@ -25,7 +25,9 @@ namespace AspNetCoreDocker
             host.Start();
 
             while (!scheduler.IsShutdown)
+            {
                 Thread.Sleep(250);
+            }
         }
 
     }

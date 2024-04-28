@@ -78,8 +78,8 @@ public abstract partial class PageControllerBase
 
     public IActionResult TextFile(string content, string contentType, DateTime lastModified, string etag)
     {
-        Response.Headers.Add("Last-Modified", lastModified.ToUniversalTime().ToString("R"));
-        Response.Headers.Add("ETag", etag);
+        Response.Headers.Append("Last-Modified", lastModified.ToUniversalTime().ToString("R"));
+        Response.Headers.Append("ETag", etag);
 
         return new ContentResult
         {

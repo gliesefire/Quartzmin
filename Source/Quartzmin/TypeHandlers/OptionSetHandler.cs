@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Quartzmin.TypeHandlers
+﻿namespace Quartzmin.TypeHandlers
 {
     [EmbeddedTypeHandlerResources(nameof(OptionSetHandler))]
     public abstract class OptionSetHandler : TypeHandlerBase

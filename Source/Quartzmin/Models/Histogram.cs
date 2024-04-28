@@ -51,6 +51,7 @@ public class Histogram
                 CssClass = "grey",
             });
         }
+
         return hst;
     }
 

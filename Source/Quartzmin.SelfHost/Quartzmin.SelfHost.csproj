@@ -21,15 +21,11 @@
         <Copyright>Copyright © 2018 Jan Lucansky</Copyright>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/jlucansky/Quartzmin</RepositoryUrl>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Quartzmin\Quartzmin.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
     <ItemGroup>

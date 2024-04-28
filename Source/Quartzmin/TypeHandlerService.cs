@@ -63,7 +63,9 @@ public class TypeHandlerService
     public void Register(Type type)
     {
         if (!typeof(TypeHandlerBase).IsAssignableFrom(type))
+        {
             throw new ArgumentException("Type must inherit from " + nameof(TypeHandlerBase));
+        }
 
         var desc = new TypeHandlerDescriptor()
         {

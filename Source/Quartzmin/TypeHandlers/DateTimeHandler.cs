@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace Quartzmin.TypeHandlers
+﻿namespace Quartzmin.TypeHandlers
 {
     [EmbeddedTypeHandlerResources(nameof(DateTimeHandler))]
     public class DateTimeHandler : TypeHandlerBase
@@ -33,7 +30,9 @@ namespace Quartzmin.TypeHandlers
                 bool missingTime = dt.TimeOfDay.Ticks == 0;
 
                 if (IgnoreTimeComponent == missingTime || IsUtc)
-                    return (IsUtc == (dt.Kind == DateTimeKind.Utc));
+                {
+                    return IsUtc == (dt.Kind == DateTimeKind.Utc);
+                }
             }
 
             return false;
@@ -42,25 +41,33 @@ namespace Quartzmin.TypeHandlers
         public override object ConvertFrom(object value)
         {
             if (value is DateTime dt)
+            {
                 return Normalize(dt);
+            }
 
             if (value is string str && DateTime.TryParseExact(str, new[] { $"{DateFormat} {TimeFormat}", DateFormat }, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+            {
                 return Normalize(result);
+            }
 
             return null;
         }
 
-        DateTime Normalize(DateTime dt)
+        private DateTime Normalize(DateTime dt)
         {
             if (IgnoreTimeComponent)
+            {
                 return DateTime.SpecifyKind(dt.Date, DateTimeKind.Unspecified);
+            }
             else
+            {
                 return DateTime.SpecifyKind(dt, IsUtc ? DateTimeKind.Utc : DateTimeKind.Local);
+            }
         }
 
         public override string ConvertToString(object value)
         {
-            return String.Format(CultureInfo.InvariantCulture, $"{{0:{GetExpectedFormat()}}}", value);
+            return string.Format(CultureInfo.InvariantCulture, $"{{0:{GetExpectedFormat()}}}", value);
         }
     }
 }

@@ -14,15 +14,15 @@ public static class PartialViewHelper
         var resourcePaths = assembly.GetManifestResourceNames();
 
         // Format: "{Namespace}.{Folder}.{filename}.{Extension}"
-        var parthPrefix = $"{nameof(Quartzmin)}.Views.Partials.";
+        var pathPrefix = $"{nameof(Quartzmin)}.Views.Partials.";
         foreach (var resourcePath in resourcePaths)
         {
-            if (!resourcePath.StartsWith(parthPrefix))
+            if (!resourcePath.StartsWith(pathPrefix))
             {
                 continue;
             }
 
-            var fileName = Path.GetFileNameWithoutExtension(resourcePath.Replace(parthPrefix, string.Empty));
+            var fileName = Path.GetFileNameWithoutExtension(resourcePath.Replace(pathPrefix, string.Empty));
 
             using Stream stream = assembly.GetManifestResourceStream(resourcePath);
             using StreamReader reader = new StreamReader(stream);

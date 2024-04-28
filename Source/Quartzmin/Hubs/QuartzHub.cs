@@ -1,26 +1,23 @@
-using System.Threading.Tasks;
-using HandlebarsDotNet;
 using Microsoft.AspNetCore.SignalR;
-using Quartzmin.Helpers;
-using Quartzmin.Models;
 
 namespace Quartzmin.Hubs
 {
-    public class QuartzHub: Hub
+    public class QuartzHub : Hub
     {
-        protected Services Services => (Services) Context.GetHttpContext()?.Items[typeof(Services)];
+        protected Services Services => (Services)Context.GetHttpContext()?.Items[typeof(Services)];
 
         public async Task GetScheduleInfoAsync()
         {
-            var scheduleInfo = await new ScheduleInfoHelper().GetScheduleInfo(Services.Scheduler);
+            var scheduleInfo = await new ScheduleInfoHelper().GetScheduleInfoAsync(Services.Scheduler).ConfigureAwait(false);
 
-            await Clients.All.SendAsync("Update", scheduleInfo);
+            await Clients.All.SendAsync("Update", scheduleInfo).ConfigureAwait(false);
         }
 
-        public async Task UpdateHistoryAsync()
+        public Task UpdateHistoryAsync()
         {
             // TODO: read from partial view file
-            //Handlebars.Compile()
+            // Handlebars.Compile()
+            return Task.CompletedTask;
         }
     }
 }

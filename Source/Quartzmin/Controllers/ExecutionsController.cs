@@ -5,7 +5,7 @@ public class ExecutionsController : PageControllerBase
     [HttpGet]
     public async Task<IActionResult> IndexAsync()
     {
-        var currentlyExecutingJobs = await Scheduler.GetCurrentlyExecutingJobs();
+        var currentlyExecutingJobs = await Scheduler.GetCurrentlyExecutingJobs().ConfigureAwait(false);
 
         var list = new List<object>();
 
@@ -35,7 +35,7 @@ public class ExecutionsController : PageControllerBase
     [HttpPost, JsonErrorResponse]
     public async Task<IActionResult> InterruptAsync([FromBody] InterruptArgs args)
     {
-        if (!await Scheduler.Interrupt(args.Id))
+        if (!await Scheduler.Interrupt(args.Id).ConfigureAwait(false))
         {
             throw new InvalidOperationException("Cannot interrupt execution " + args.Id);
         }

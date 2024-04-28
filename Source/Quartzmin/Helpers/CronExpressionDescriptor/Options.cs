@@ -1,7 +1,4 @@
-﻿using System.Globalization;
-using System.Threading;
-
-namespace CronExpressionDescriptor
+﻿namespace CronExpressionDescriptor
 {
     /// <summary>
     /// Options for parsing and describing a Cron Expression
@@ -10,10 +7,10 @@ namespace CronExpressionDescriptor
     {
         public Options()
         {
-            this.ThrowExceptionOnParseError = true;
-            this.Verbose = false;
-            this.DayOfWeekStartIndexZero = true;
-            this.Use24HourTimeFormat = true;
+            ThrowExceptionOnParseError = true;
+            Verbose = false;
+            DayOfWeekStartIndexZero = true;
+            Use24HourTimeFormat = true;
         }
 
         public bool ThrowExceptionOnParseError { get; set; }

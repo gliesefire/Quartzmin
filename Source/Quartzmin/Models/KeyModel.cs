@@ -1,6 +1,4 @@
-﻿using Quartz;
-
-namespace Quartzmin.Models
+﻿namespace Quartzmin.Models
 {
     public class KeyModel
     {

@@ -1,6 +1,4 @@
-﻿using Quartzmin.TypeHandlers;
-
-namespace Quartzmin.Models
+﻿namespace Quartzmin.Models
 {
     public class JobDataMapItem : JobDataMapItemBase
     {

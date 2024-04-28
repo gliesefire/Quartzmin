@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Quartzmin.Models
+﻿namespace Quartzmin.Models
 {
     public class JobListItem
     {
@@ -14,7 +9,6 @@ namespace Quartzmin.Models
         public string Type { get; set; }
 
         public string Description { get; set; }
-
 
         public bool Recovery { get; set; }
 

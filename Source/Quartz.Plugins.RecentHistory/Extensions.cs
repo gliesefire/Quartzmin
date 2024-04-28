@@ -1,5 +1,4 @@
-﻿
-namespace Quartz.Plugins.RecentHistory
+﻿namespace Quartz.Plugins.RecentHistory
 {
     public static class Extensions
     {

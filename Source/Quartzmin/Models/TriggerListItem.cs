@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Quartzmin.Models
+﻿namespace Quartzmin.Models
 {
     public class TriggerListItem
     {
@@ -27,7 +22,6 @@ namespace Quartzmin.Models
 
         public string StartTime { get; set; }
         public string EndTime { get; set; }
-
 
         public string LastFireTime { get; set; }
         public string NextFireTime { get; set; }
@@ -63,11 +57,14 @@ namespace Quartzmin.Models
             get
             {
                 if (Type == TriggerType.Unknown)
+                {
                     return ClrType;
+                }
                 else
+                {
                     return Type.ToString();
+                }
             }
         }
-
     }
 }

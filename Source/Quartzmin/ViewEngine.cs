@@ -13,7 +13,7 @@ public class ViewEngine
         _useCache = string.IsNullOrEmpty(services.Options.ViewsRootDirectory);
     }
 
-    HandlebarsTemplate<object, string> GetRenderDelegate(string templatePath)
+    private HandlebarsTemplate<object, string> GetRenderDelegate(string templatePath)
     {
         if (!_useCache)
         {
