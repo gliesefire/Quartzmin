@@ -3,15 +3,17 @@ using System.Threading;
 
 namespace NetCoreSelfHost
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var scheduler = DemoScheduler.Create().Result;
+            var scheduler = DemoScheduler.CreateAsync().Result;
             scheduler.Start();
 
             while (!scheduler.IsShutdown)
+            {
                 Thread.Sleep(500);
+            }
         }
     }
 }

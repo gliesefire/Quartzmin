@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace CronExpressionDescriptor
+﻿namespace CronExpressionDescriptor
 {
     /// <summary>
-    /// Enum to define the description "parts" of a Cron Expression  
+    /// Enum to define the description "parts" of a Cron Expression
     /// </summary>
     public enum DescriptionTypeEnum
     {

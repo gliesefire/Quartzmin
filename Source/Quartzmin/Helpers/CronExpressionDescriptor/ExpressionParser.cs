@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Globalization;
+﻿using System.Text.RegularExpressions;
 
 namespace CronExpressionDescriptor
 {
@@ -37,7 +34,7 @@ namespace CronExpressionDescriptor
         {
             m_expression = expression;
             m_options = options;
-            m_en_culture = new CultureInfo("en-US"); //Default to English
+            m_en_culture = new CultureInfo("en-US"); // Default to English
         }
 
         /// <summary>
@@ -47,7 +44,7 @@ namespace CronExpressionDescriptor
         public string[] Parse()
         {
             // Initialize all elements of parsed array to empty strings
-            string[] parsed = new string[7].Select(el => "").ToArray();
+            string[] parsed = new string[7].Select(el => string.Empty).ToArray();
 
             if (string.IsNullOrEmpty(m_expression))
             {
@@ -67,12 +64,12 @@ namespace CronExpressionDescriptor
                 }
                 else if (expressionPartsTemp.Length == 5)
                 {
-                    //5 part cron so shift array past seconds element
+                    // 5 part cron so shift array past seconds element
                     Array.Copy(expressionPartsTemp, 0, parsed, 1, 5);
                 }
                 else if (expressionPartsTemp.Length == 6)
                 {
-                    //If last element ends with 4 digits, a year element has been supplied and no seconds element
+                    // If last element ends with 4 digits, a year element has been supplied and no seconds element
                     Regex yearRegex = new Regex("\\d{4}$");
                     if (yearRegex.IsMatch(expressionPartsTemp[5]))
                     {
@@ -169,7 +166,6 @@ namespace CronExpressionDescriptor
                 DayOfWeek currentDay = (DayOfWeek)i;
                 string currentDayOfWeekDescription = currentDay.ToString().Substring(0, 3).ToUpperInvariant();
                 expressionParts[5] = Regex.Replace(expressionParts[5], currentDayOfWeekDescription, i.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-
             }
 
             // Convert JAN-DEC format to 1-12 format

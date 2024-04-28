@@ -21,20 +21,23 @@ namespace Quartzmin.SelfHost
         private IScheduler _scheduler;
         private IDisposable _webApp;
 
-        public Task Initialize(string pluginName, IScheduler scheduler, CancellationToken cancellationToken = default(CancellationToken))
+        public Task Initialize(string pluginName, IScheduler scheduler, CancellationToken cancellationToken = default)
         {
             _scheduler = scheduler;
             return Task.FromResult(0);
         }
 
-        public async Task Start(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task Start(CancellationToken cancellationToken = default)
         {
-            var host = Microsoft.AspNetCore.WebHost.CreateDefaultBuilder().Configure(app => {
+            var host = Microsoft.AspNetCore.WebHost.CreateDefaultBuilder().Configure(app =>
+            {
                 app.UseQuartzmin(CreateQuartzminOptions());
-            }).ConfigureServices(services => {
+            }).ConfigureServices(services =>
+            {
                 services.AddQuartzmin();
             })
-            .ConfigureLogging(logging => {
+            .ConfigureLogging(logging =>
+            {
                 logging.ClearProviders();
             })
             .UseUrls(Url)
@@ -42,10 +45,10 @@ namespace Quartzmin.SelfHost
 
             _webApp = host;
 
-            await host.StartAsync();
+            await host.StartAsync().ConfigureAwait(false);
         }
 
-        public Task Shutdown(CancellationToken cancellationToken = default(CancellationToken))
+        public Task Shutdown(CancellationToken cancellationToken = default)
         {
             _webApp.Dispose();
             return Task.FromResult(0);
@@ -59,16 +62,26 @@ namespace Quartzmin.SelfHost
             };
 
             if (!string.IsNullOrEmpty(DefaultDateFormat))
+            {
                 options.DefaultDateFormat = DefaultDateFormat;
+            }
+
             if (!string.IsNullOrEmpty(DefaultTimeFormat))
+            {
                 options.DefaultTimeFormat = DefaultTimeFormat;
+            }
+
             if (!string.IsNullOrEmpty(Logo))
+            {
                 options.Logo = Logo;
+            }
+
             if (!string.IsNullOrEmpty(ProductName))
+            {
                 options.ProductName = ProductName;
+            }
 
             return options;
         }
-
     }
 }

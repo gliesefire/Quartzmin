@@ -25,7 +25,10 @@ internal static class Extensions
         {
             var title = x.ToString();
             if (!title.StartsWith("("))
+            {
                 title = $"({title}) {x.Id}";
+            }
+
             return title;
         });
     }
@@ -59,7 +62,9 @@ internal static class Extensions
         var map = new JobDataMap();
 
         foreach (var item in models)
+        {
             map.Put(item.Name, item.Value);
+        }
 
         return map;
     }
@@ -83,9 +88,13 @@ internal static class Extensions
     public static object GetValue(this IDictionary<string, object> dict, string key, object @default)
     {
         if (dict.TryGetValue(key, out var value))
+        {
             return value;
+        }
         else
+        {
             return @default;
+        }
     }
 
     public static string[] GroupArray(this IEnumerable<string> seq)
@@ -101,7 +110,6 @@ internal static class Extensions
     public static string RemoveAssemblyDetails(this Type type)
     {
         // https://github.com/JamesNK/Newtonsoft.Json/blob/master/Src/Newtonsoft.Json/Utilities/ReflectionUtils.cs
-
         string fullyQualifiedTypeName = type.AssemblyQualifiedName;
 
         StringBuilder builder = new StringBuilder();
@@ -134,12 +142,14 @@ internal static class Extensions
                     {
                         skippingAssemblyDetails = true;
                     }
+
                     break;
                 default:
                     if (!skippingAssemblyDetails)
                     {
                         builder.Append(current);
                     }
+
                     break;
             }
         }
@@ -155,18 +165,23 @@ internal static class Extensions
         List<JobDataMapItem> list = new List<JobDataMapItem>();
 
         // TODO: doplnit parametre z template na zaklade jobKey; value najprv skonvertovat na ocakavany typ zo sablony
-
         JobDataMap jobDataMap = null;
-
         {
             if (jobOrTrigger is IJobDetail j)
+            {
                 jobDataMap = j.JobDataMap;
+            }
+
             if (jobOrTrigger is ITrigger t)
+            {
                 jobDataMap = t.JobDataMap;
+            }
         }
 
         if (jobDataMap == null)
+        {
             throw new ArgumentException("Invalid type.", nameof(jobOrTrigger));
+        }
 
         foreach (var pair in jobDataMap)
         {
@@ -205,9 +220,13 @@ internal static class Extensions
                     string strValue;
                     var m = t.GetMethod(nameof(ToString), BindingFlags.Instance | BindingFlags.Public, null, CallingConventions.Any, new Type[0], null);
                     if (m.DeclaringType == typeof(object))
+                    {
                         strValue = "{" + t.ToString() + "}";
+                    }
                     else
+                    {
                         strValue = string.Format(CultureInfo.InvariantCulture, "{0}", model.Value);
+                    }
 
                     model.SelectedType = new UnsupportedTypeHandler()
                     {
@@ -229,39 +248,54 @@ internal static class Extensions
         return list;
     }
 
-    public static Task UpdateJob(this IScheduler scheduler, JobKey jobKey, IJobDetail newJob)
+    public static Task UpdateJobAsync(this IScheduler scheduler, JobKey jobKey, IJobDetail newJob)
     {
         return Task.Run(async () =>
         {
             // get existing triggers associated with job
-            var triggers = await scheduler.GetTriggersOfJob(jobKey);
+            var triggers = await scheduler.GetTriggersOfJob(jobKey).ConfigureAwait(false);
 
             // set new job to all triggers
             triggers = triggers.Select(t =>
             {
                 var b = t.GetTriggerBuilder().ForJob(newJob.Key);
-                if (t.StartTimeUtc < DateTimeOffset.UtcNow) b.StartNow();
+                if (t.StartTimeUtc < DateTimeOffset.UtcNow)
+                {
+                    b.StartNow();
+                }
+
                 return b.Build();
             }).ToArray();
 
             // delete old job
-            await scheduler.DeleteJob(jobKey);
+            await scheduler.DeleteJob(jobKey).ConfigureAwait(false);
 
             // save new job with triggers
-            await scheduler.ScheduleJob(newJob, triggers, replace: true);
+            await scheduler.ScheduleJob(newJob, triggers, replace: true).ConfigureAwait(false);
         });
     }
 
     public static TriggerType GetTriggerType(this ITrigger trigger)
     {
         if (trigger is ICronTrigger)
+        {
             return TriggerType.Cron;
+        }
+
         if (trigger is IDailyTimeIntervalTrigger)
+        {
             return TriggerType.Daily;
+        }
+
         if (trigger is ISimpleTrigger)
+        {
             return TriggerType.Simple;
+        }
+
         if (trigger is ICalendarIntervalTrigger)
+        {
             return TriggerType.Calendar;
+        }
 
         return TriggerType.Unknown;
     }
@@ -269,13 +303,24 @@ internal static class Extensions
     public static string GetScheduleDescription(this ITrigger trigger)
     {
         if (trigger is ICronTrigger cr)
+        {
             return CronExpressionDescriptor.ExpressionDescriptor.GetDescription(cr.CronExpressionString);
+        }
+
         if (trigger is IDailyTimeIntervalTrigger dt)
+        {
             return GetScheduleDescription(dt);
+        }
+
         if (trigger is ISimpleTrigger st)
+        {
             return GetScheduleDescription(st);
+        }
+
         if (trigger is ICalendarIntervalTrigger ct)
+        {
             return GetScheduleDescription(ct.RepeatInterval, ct.RepeatIntervalUnit);
+        }
 
         return null;
     }
@@ -295,10 +340,12 @@ internal static class Extensions
         public string Plural { get; set; }
         public long Multiplier { get; set; }
 
-        public TimespanPart(string singular, long multiplier) : this(singular)
+        public TimespanPart(string singular, long multiplier)
+            : this(singular)
         {
             Multiplier = multiplier;
         }
+
         public TimespanPart(string singular)
         {
             Singular = singular;
@@ -316,11 +363,17 @@ internal static class Extensions
             var dow = DaysOfWeekViewModel.Create(trigger.DaysOfWeek);
 
             if (dow.AreOnlyWeekdaysEnabled)
+            {
                 result += " only on Weekdays";
+            }
             else if (dow.AreOnlyWeekendEnabled)
+            {
                 result += " only on Weekends";
+            }
             else
+            {
                 result += " on " + string.Join(", ", trigger.DaysOfWeek);
+            }
         }
 
         return result;
@@ -330,7 +383,10 @@ internal static class Extensions
     {
         string result = "Repeat ";
         if (trigger.RepeatCount > 0)
+        {
             result += trigger.RepeatCount + " times ";
+        }
+
         result += "every ";
 
         var diff = trigger.RepeatInterval.TotalMilliseconds;
@@ -342,9 +398,13 @@ internal static class Extensions
             diff -= currentPartValue * part.Multiplier;
 
             if (currentPartValue == 1)
+            {
                 messagesParts.Add(part.Singular);
+            }
             else if (currentPartValue > 1)
+            {
                 messagesParts.Add(currentPartValue + " " + part.Plural);
+            }
         }
 
         result += string.Join(", ", messagesParts);
@@ -356,19 +416,25 @@ internal static class Extensions
     {
         string result = "Repeat ";
         if (repeatCount > 0)
+        {
             result += repeatCount + " times ";
+        }
+
         result += "every ";
 
         string unitStr = repeatIntervalUnit.ToString().ToLower();
 
         if (repeatInterval == 1)
+        {
             result += unitStr;
+        }
         else
+        {
             result += repeatInterval + " " + unitStr + "s";
+        }
 
         return result;
     }
-
 
     public static string ToShortFormat(this TimeOfDay timeOfDay)
     {
@@ -377,7 +443,7 @@ internal static class Extensions
 
     public static TimeSpan ToTimeSpan(this TimeOfDay timeOfDay)
     {
-        return TimeSpan.FromSeconds(timeOfDay.Second + timeOfDay.Minute * 60 + timeOfDay.Hour * 3600);
+        return TimeSpan.FromSeconds(timeOfDay.Second + (timeOfDay.Minute * 60) + (timeOfDay.Hour * 3600));
     }
 
     public static TriggerBuilder ForJob(this TriggerBuilder builder, string jobKey)
@@ -399,17 +465,21 @@ internal static class Extensions
     public static Histogram ToHistogram(this IEnumerable<ExecutionHistoryEntry> entries, bool detailed = false)
     {
         if (entries == null || entries.Any() == false)
+        {
             return null;
+        }
 
         var hst = new Histogram();
         foreach (var entry in entries)
         {
             TimeSpan? duration = null;
-            string cssClass = "";
+            string cssClass = string.Empty;
             string state = "Finished";
 
             if (entry.FinishedTimeUtc != null)
+            {
                 duration = entry.FinishedTimeUtc - entry.ActualFireTimeUtc;
+            }
 
             if (entry.Vetoed == false && entry.FinishedTimeUtc == null) // still running
             {
@@ -419,9 +489,11 @@ internal static class Extensions
             }
 
             if (entry.Vetoed)
+            {
                 state = "Vetoed";
+            }
 
-            string durationHtml = "", delayHtml = "", errorHtml = "", detailsHtml = "";
+            string durationHtml = string.Empty, delayHtml = string.Empty, errorHtml = string.Empty, detailsHtml = string.Empty;
 
             if (!string.IsNullOrEmpty(entry.ExceptionMessage))
             {
@@ -431,16 +503,22 @@ internal static class Extensions
             }
 
             if (duration != null)
+            {
                 durationHtml = $"<br>Duration: <b>{duration.ToNiceFormat()}</b>";
+            }
 
             if (entry.ScheduledFireTimeUtc != null)
+            {
                 delayHtml = $"<br>Delay: <b>{(entry.ActualFireTimeUtc - entry.ScheduledFireTimeUtc).ToNiceFormat()}</b>";
+            }
 
             if (detailed)
+            {
                 detailsHtml = $"Job: <b>{entry.Job}</b><br>Trigger: <b>{entry.Trigger}</b><br>";
+            }
 
             hst.AddBar(duration?.TotalSeconds ?? 1,
-                $"{detailsHtml}Fired: <b>{entry.ActualFireTimeUtc.ToDefaultFormat()} UTC</b>{durationHtml}{delayHtml}"+
+                $"{detailsHtml}Fired: <b>{entry.ActualFireTimeUtc.ToDefaultFormat()} UTC</b>{durationHtml}{delayHtml}" +
                 $"<br>State: <b>{state}</b>{errorHtml}",
                 cssClass);
         }
@@ -452,21 +530,32 @@ internal static class Extensions
 
     public static string ToNiceFormat(this TimeSpan? timeSpan)
     {
-        if (timeSpan == null) return "";
+        if (timeSpan == null)
+        {
+            return string.Empty;
+        }
 
         var ts = timeSpan.Value;
 
         if (ts.TotalSeconds < 1)
+        {
             return (int)ts.TotalMilliseconds + "ms";
+        }
 
         if (ts.TotalMinutes < 1)
+        {
             return (int)ts.TotalSeconds + " seconds";
+        }
 
         if (ts.TotalHours < 1)
+        {
             return (int)ts.TotalMinutes + " minutes";
+        }
 
         if (ts.TotalDays < 1)
+        {
             return string.Format(CultureInfo.InvariantCulture, "{0:hh\\:mm}", timeSpan);
+        }
 
         return string.Format(CultureInfo.InvariantCulture, "{0:%d} days {0:hh\\:mm}", timeSpan);
     }

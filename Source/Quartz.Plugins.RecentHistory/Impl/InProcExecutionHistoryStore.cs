@@ -11,39 +11,44 @@ namespace Quartz.Plugins.RecentHistory.Impl
     {
         public string SchedulerName { get; set; }
 
-        Dictionary<string, ExecutionHistoryEntry> _data = new Dictionary<string, ExecutionHistoryEntry>();
+        private Dictionary<string, ExecutionHistoryEntry> _data = new Dictionary<string, ExecutionHistoryEntry>();
+        private DateTime _nextPurgeTime = DateTime.UtcNow;
+        private int _updatesFromLastPurge;
+        private int _totalJobsExecuted = 0;
+        private int _totalJobsFailed = 0;
 
-        DateTime _nextPurgeTime = DateTime.UtcNow;
-        int _updatesFromLastPurge;
-
-        int _totalJobsExecuted = 0, _totalJobsFailed = 0;
-
-        public Task<ExecutionHistoryEntry> Get(string fireInstanceId)
+        public Task<ExecutionHistoryEntry> GetAsync(string fireInstanceId)
         {
             lock (_data)
             {
                 if (_data.TryGetValue(fireInstanceId, out var entry))
+                {
                     return Task.FromResult(entry);
+                }
                 else
-                    return Task.FromResult<ExecutionHistoryEntry>(null); ;
+                {
+                    return Task.FromResult<ExecutionHistoryEntry>(null);
+                }
             }
         }
 
-        public async Task Purge()
+        public async Task PurgeAsync()
         {
-            var ids = new HashSet<string>((await FilterLastOfEveryTrigger(10)).Select(x => x.FireInstanceId));
+            var ids = new HashSet<string>((await FilterLastOfEveryTriggerAsync(10).ConfigureAwait(false)).Select(x => x.FireInstanceId));
 
             lock (_data)
             {
                 foreach (var key in _data.Keys.ToArray())
                 {
                     if (!ids.Contains(key))
+                    {
                         _data.Remove(key);
+                    }
                 }
             }
         }
 
-        public async Task Save(ExecutionHistoryEntry entry)
+        public async Task SaveAsync(ExecutionHistoryEntry entry)
         {
             _updatesFromLastPurge++;
 
@@ -51,7 +56,7 @@ namespace Quartz.Plugins.RecentHistory.Impl
             {
                 _nextPurgeTime = DateTime.UtcNow.AddMinutes(1);
                 _updatesFromLastPurge = 0;
-                await Purge();
+                await PurgeAsync().ConfigureAwait(false);
             }
 
             lock (_data)
@@ -60,7 +65,7 @@ namespace Quartz.Plugins.RecentHistory.Impl
             }
         }
 
-        public Task<IEnumerable<ExecutionHistoryEntry>> FilterLastOfEveryJob(int limitPerJob)
+        public Task<IEnumerable<ExecutionHistoryEntry>> FilterLastOfEveryJobAsync(int limitPerJob)
         {
             lock (_data)
             {
@@ -73,7 +78,7 @@ namespace Quartz.Plugins.RecentHistory.Impl
             }
         }
 
-        public Task<IEnumerable<ExecutionHistoryEntry>> FilterLastOfEveryTrigger(int limitPerTrigger)
+        public Task<IEnumerable<ExecutionHistoryEntry>> FilterLastOfEveryTriggerAsync(int limitPerTrigger)
         {
             lock (_data)
             {
@@ -86,7 +91,7 @@ namespace Quartz.Plugins.RecentHistory.Impl
             }
         }
 
-        public Task<IEnumerable<ExecutionHistoryEntry>> FilterLast(int limit)
+        public Task<IEnumerable<ExecutionHistoryEntry>> FilterLastAsync(int limit)
         {
             lock (_data)
             {
@@ -97,22 +102,23 @@ namespace Quartz.Plugins.RecentHistory.Impl
             }
         }
 
-        public Task<int> GetTotalJobsExecuted()
+        public Task<int> GetTotalJobsExecutedAsync()
         {
             return Task.FromResult(_totalJobsExecuted);
         }
-        public Task<int> GetTotalJobsFailed()
+
+        public Task<int> GetTotalJobsFailedAsync()
         {
             return Task.FromResult(_totalJobsFailed);
         }
 
-        public Task IncrementTotalJobsExecuted()
+        public Task IncrementTotalJobsExecutedAsync()
         {
             Interlocked.Increment(ref _totalJobsExecuted);
             return Task.FromResult(0);
         }
 
-        public Task IncrementTotalJobsFailed()
+        public Task IncrementTotalJobsFailedAsync()
         {
             Interlocked.Increment(ref _totalJobsFailed);
             return Task.FromResult(0);

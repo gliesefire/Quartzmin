@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
-
-namespace Quartzmin.TypeHandlers
+﻿namespace Quartzmin.TypeHandlers
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public class TypeHandlerResourcesAttribute : Attribute
@@ -52,10 +47,14 @@ namespace Quartzmin.TypeHandlers
             using (var stream = Assembly.GetManifestResourceStream(fullName))
             {
                 if (stream == null)
+                {
                     throw new InvalidOperationException("Embedded resource not found: " + fullName + " in assembly: " + Assembly.FullName);
+                }
 
                 using (var reader = new StreamReader(stream, Encoding.UTF8))
+                {
                     return reader.ReadToEnd();
+                }
             }
         }
     }

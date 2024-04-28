@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Quartz;
-using Quartzmin.Helpers;
-using Quartzmin.Models;
-
-namespace Quartzmin.Controllers
+﻿namespace Quartzmin.Controllers
 {
     public class CalendarsController : PageControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> IndexAsync()
         {
-            var calendarNames = await Scheduler.GetCalendarNames();
+            var calendarNames = await Scheduler.GetCalendarNames().ConfigureAwait(false);
 
             var list = new List<CalendarListItem>();
 
             foreach (string name in calendarNames)
             {
-                var cal = await Scheduler.GetCalendar(name);
+                var cal = await Scheduler.GetCalendar(name).ConfigureAwait(false);
                 if (cal != null)
                 {
                     list.Add(new CalendarListItem
@@ -51,7 +42,7 @@ namespace Quartzmin.Controllers
         [HttpGet]
         public async Task<IActionResult> EditAsync(string name)
         {
-            var calendar = await Scheduler.GetCalendar(name);
+            var calendar = await Scheduler.GetCalendar(name).ConfigureAwait(false);
 
             var model = calendar.Flatten().Select(x => CalendarViewModel.FromCalendar(x)).ToArray();
 
@@ -103,7 +94,7 @@ namespace Quartzmin.Controllers
 
                 if (!isNew && name != null)
                 {
-                    existing = await Scheduler.GetCalendar(name);
+                    existing = await Scheduler.GetCalendar(name).ConfigureAwait(false);
                 }
 
                 ICalendar root = null, current = null;
@@ -138,7 +129,7 @@ namespace Quartzmin.Controllers
                 }
                 else
                 {
-                    await Scheduler.AddCalendar(name, root, replace: true, updateTriggers: true);
+                    await Scheduler.AddCalendar(name, root, replace: true, updateTriggers: true).ConfigureAwait(false);
                 }
             }
 
@@ -153,7 +144,7 @@ namespace Quartzmin.Controllers
         [HttpPost, JsonErrorResponse]
         public async Task<IActionResult> DeleteAsync([FromBody] DeleteArgs args)
         {
-            if (!await Scheduler.DeleteCalendar(args.Name))
+            if (!await Scheduler.DeleteCalendar(args.Name).ConfigureAwait(false))
             {
                 throw new InvalidOperationException("Cannot delete calendar " + args.Name);
             }

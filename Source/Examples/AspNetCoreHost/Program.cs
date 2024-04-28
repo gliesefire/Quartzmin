@@ -12,12 +12,12 @@ var app = builder.Build();
 app.Use(async (context, next) =>
 {
     context.Items["header"] = "a";
-    await next.Invoke(context);
+    await next.Invoke(context).ConfigureAwait(false);
 });
 
 app.UseQuartzmin(new QuartzminOptions
 {
-    Scheduler = DemoScheduler.Create().Result
+    Scheduler = DemoScheduler.CreateAsync().Result
 });
 
 app.UseRouting();

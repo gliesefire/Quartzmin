@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Quartzmin.Models
+﻿namespace Quartzmin.Models
 {
     public class ValidationResult
     {

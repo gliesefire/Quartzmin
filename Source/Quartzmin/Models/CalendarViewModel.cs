@@ -1,12 +1,5 @@
-﻿using Quartz;
+﻿using System.ComponentModel.DataAnnotations;
 using Quartz.Impl.Calendar;
-using Quartzmin.Helpers;
-using Quartzmin.TypeHandlers;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Linq;
 
 namespace Quartzmin.Models
 {
@@ -44,18 +37,26 @@ namespace Quartzmin.Models
             ModelValidator.ValidateObject(this, errors, camelCase: false);
 
             if (knownCalendars.TryGetValue(Type, out var o))
+            {
                 o.Validator(this, errors);
+            }
             else
+            {
                 errors.Add(new ValidationError() { Field = nameof(Type), Reason = "Invalid value." });
+            }
         }
 
         public static CalendarViewModel FromCalendar(ICalendar calendar)
         {
             if (converters.TryGetValue(calendar.GetType(), out var modelFactory))
+            {
                 return modelFactory(calendar);
+            }
 
             if (calendar is BaseCalendar)
+            {
                 return converters[typeof(BaseCalendar)](calendar);
+            }
 
             return converters[typeof(ICalendar)](calendar);
         }
@@ -69,14 +70,20 @@ namespace Quartzmin.Models
         private TimeZoneInfo ResolveTimeZone()
         {
             if (string.IsNullOrEmpty(TimeZone))
+            {
                 return null;
+            }
+
             return TimeZoneInfo.FindSystemTimeZoneById(TimeZone);
         }
 
         public ICalendar BuildCalendar()
         {
             if (knownCalendars.TryGetValue(Type, out var o))
+            {
                 return o.Builder(this);
+            }
+
             throw new InvalidOperationException("Unsupported Type: " + Type);
         }
 
@@ -88,7 +95,10 @@ namespace Quartzmin.Models
                 {
                     var cal = new AnnualCalendar() { TimeZone = model.ResolveTimeZone(), Description = model.Description };
                     foreach (var d in model.Days)
+                    {
                         cal.SetDayExcluded(DateTime.ParseExact(d, "MMMM d", CultureInfo.InvariantCulture), true);
+                    }
+
                     return cal;
                 },
                 Validator = (model, errors) =>
@@ -96,7 +106,9 @@ namespace Quartzmin.Models
                     for (int i = 0; i < model.Days.Count; i++)
                     {
                         if (DateTime.TryParseExact(model.Days[i], "MMMM d", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _) == false)
+                        {
                             errors.Add(new ValidationError() { Field = nameof(model.Days), Reason = "Invalid format.", FieldIndex = i });
+                        }
                     }
                 }
             },
@@ -109,13 +121,16 @@ namespace Quartzmin.Models
                 Validator = (model, errors) =>
                 {
                     if (string.IsNullOrEmpty(model.CronExpression))
+                    {
                         errors.Add(ValidationError.EmptyField(nameof(model.CronExpression)));
+                    }
                     else
                     {
                         if (Quartz.CronExpression.IsValidExpression(model.CronExpression) == false)
+                        {
                             errors.Add(new ValidationError() { Field = nameof(model.CronExpression), Reason = "Invalid format." });
+                        }
                     }
-
                 }
             },
             ["daily"] = new CalendarHandler()
@@ -132,19 +147,27 @@ namespace Quartzmin.Models
                 Validator = (model, errors) =>
                 {
                     if (string.IsNullOrEmpty(model.StartingTime))
+                    {
                         errors.Add(ValidationError.EmptyField(nameof(model.StartingTime)));
+                    }
                     else
                     {
                         if (TimeSpan.TryParse(model.StartingTime, out var _) == false)
+                        {
                             errors.Add(new ValidationError() { Field = nameof(model.StartingTime), Reason = "Invalid format." });
+                        }
                     }
 
                     if (string.IsNullOrEmpty(model.EndingTime))
+                    {
                         errors.Add(ValidationError.EmptyField(nameof(model.EndingTime)));
+                    }
                     else
                     {
                         if (TimeSpan.TryParse(model.EndingTime, out var _) == false)
+                        {
                             errors.Add(new ValidationError() { Field = nameof(model.EndingTime), Reason = "Invalid format." });
+                        }
                     }
                 }
             },
@@ -154,7 +177,10 @@ namespace Quartzmin.Models
                 {
                     var cal = new HolidayCalendar() { TimeZone = model.ResolveTimeZone(), Description = model.Description };
                     foreach (var d in model.Dates)
+                    {
                         cal.AddExcludedDate(DateTime.ParseExact(d, DateTimeSettings.DefaultDateFormat, CultureInfo.InvariantCulture));
+                    }
+
                     return cal;
                 },
                 Validator = (model, errors) =>
@@ -162,7 +188,9 @@ namespace Quartzmin.Models
                     for (int i = 0; i < model.Dates.Count; i++)
                     {
                         if (DateTime.TryParseExact(model.Dates[i], DateTimeSettings.DefaultDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime _) == false)
+                        {
                             errors.Add(new ValidationError() { Field = nameof(model.Dates), Reason = "Invalid format.", FieldIndex = i });
+                        }
                     }
                 }
             },
@@ -172,13 +200,18 @@ namespace Quartzmin.Models
                 {
                     var cal = new MonthlyCalendar() { TimeZone = model.ResolveTimeZone(), Description = model.Description };
                     for (int i = 0; i < model.DaysExcluded.Length; i++)
+                    {
                         cal.SetDayExcluded(i + 1, model.DaysExcluded[i]);
+                    }
+
                     return cal;
                 },
                 Validator = (model, errors) =>
                 {
                     if (model.DaysExcluded.Length != 31)
+                    {
                         errors.Add(new ValidationError() { Field = nameof(model.DaysExcluded), Reason = "Invalid Length." });
+                    }
                 }
             },
             ["weekly"] = new CalendarHandler()
@@ -187,13 +220,18 @@ namespace Quartzmin.Models
                 {
                     var cal = new WeeklyCalendar() { TimeZone = model.ResolveTimeZone(), Description = model.Description };
                     for (int i = 0; i < model.DaysExcluded.Length; i++)
+                    {
                         cal.SetDayExcluded((DayOfWeek)i, model.DaysExcluded[i]);
+                    }
+
                     return cal;
                 },
                 Validator = (model, errors) =>
                 {
                     if (model.DaysExcluded.Length != 7)
+                    {
                         errors.Add(new ValidationError() { Field = nameof(model.DaysExcluded), Reason = "Invalid Length." });
+                    }
                 }
             },
             ["none"] = new CalendarHandler()
@@ -206,7 +244,6 @@ namespace Quartzmin.Models
                 Builder = model => throw new InvalidOperationException(),
                 Validator = (model, errors) => { }
             }
-
         };
 
         private static readonly Dictionary<Type, Func<ICalendar, CalendarViewModel>> converters = new Dictionary<Type, Func<ICalendar, CalendarViewModel>>()

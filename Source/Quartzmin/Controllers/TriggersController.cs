@@ -1,28 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Quartz;
-using Quartz.Impl.Matchers;
-using Quartz.Plugins.RecentHistory;
-using Quartzmin.Helpers;
-using Quartzmin.Models;
-
-namespace Quartzmin.Controllers
+﻿namespace Quartzmin.Controllers
 {
     public class TriggersController : PageControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> IndexAsync()
         {
-            var keys = (await Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup())).OrderBy(x => x.ToString());
+            var keys = (await Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup()).ConfigureAwait(false)).OrderBy(x => x.ToString());
             var list = new List<TriggerListItem>();
 
             foreach (var key in keys)
             {
-                var t = await GetTrigger(key);
-                var state = await Scheduler.GetTriggerState(key);
+                var t = await GetTriggerAsync(key).ConfigureAwait(false);
+                var state = await Scheduler.GetTriggerState(key).ConfigureAwait(false);
 
                 list.Add(new TriggerListItem()
                 {
@@ -44,7 +33,7 @@ namespace Quartzmin.Controllers
                 });
             }
 
-            ViewBag.Groups = (await Scheduler.GetTriggerGroupNames()).GroupArray();
+            ViewBag.Groups = (await Scheduler.GetTriggerGroupNames().ConfigureAwait(false)).GroupArray();
 
             list = list.OrderBy(x => x.JobKey).ToList();
             string prevKey = null;
@@ -63,7 +52,7 @@ namespace Quartzmin.Controllers
         [HttpGet]
         public async Task<IActionResult> NewAsync()
         {
-            var model = await TriggerPropertiesViewModel.Create(Scheduler);
+            var model = await TriggerPropertiesViewModel.CreateAsync(Scheduler).ConfigureAwait(false);
             var jobDataMap = new JobDataMapModel() { Template = JobDataMapItemTemplate };
 
             model.IsNew = true;
@@ -75,16 +64,19 @@ namespace Quartzmin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string name, string group, bool clone = false)
+        public async Task<IActionResult> EditAsync(string name, string group, bool clone = false)
         {
-            if (!EnsureValidKey(name, group)) return BadRequest();
+            if (!EnsureValidKey(name, group))
+            {
+                return BadRequest();
+            }
 
             var key = new TriggerKey(name, group);
-            var trigger = await GetTrigger(key);
+            var trigger = await GetTriggerAsync(key).ConfigureAwait(false);
 
             var jobDataMap = new JobDataMapModel() { Template = JobDataMapItemTemplate };
 
-            var model = await TriggerPropertiesViewModel.Create(Scheduler);
+            var model = await TriggerPropertiesViewModel.CreateAsync(Scheduler).ConfigureAwait(false);
 
             model.IsNew = clone;
             model.IsCopy = clone;
@@ -96,7 +88,9 @@ namespace Quartzmin.Controllers
             model.OldTriggerGroup = trigger.Key.Group;
 
             if (clone)
+            {
                 model.TriggerName += " - Copy";
+            }
 
             // don't show start time in the past because rescheduling cause triggering missfire policies
             model.StartTimeUtc = trigger.StartTimeUtc > DateTimeOffset.UtcNow ? trigger.StartTimeUtc.UtcDateTime.ToDefaultFormat() : null;
@@ -133,10 +127,10 @@ namespace Quartzmin.Controllers
         }
 
         [HttpPost, JsonErrorResponse]
-        public async Task<IActionResult> Save([FromForm] TriggerViewModel model)
+        public async Task<IActionResult> SaveAsync([FromForm] TriggerViewModel model)
         {
             var triggerModel = model.Trigger;
-            var jobDataMap = (await Request.GetJobDataMapFormAsync()).GetModel(Services);
+            var jobDataMap = (await Request.GetJobDataMapFormAsync().ConfigureAwait(false)).GetModel(Services);
 
             var result = new ValidationResult();
 
@@ -156,26 +150,39 @@ namespace Quartzmin.Controllers
                 builder.EndAt(triggerModel.GetEndTimeUtc());
 
                 if (!string.IsNullOrEmpty(triggerModel.CalendarName))
+                {
                     builder.ModifiedByCalendar(triggerModel.CalendarName);
+                }
 
                 if (triggerModel.Type == TriggerType.Cron)
+                {
                     triggerModel.Cron.Apply(builder, triggerModel);
+                }
+
                 if (triggerModel.Type == TriggerType.Simple)
+                {
                     triggerModel.Simple.Apply(builder, triggerModel);
+                }
+
                 if (triggerModel.Type == TriggerType.Daily)
+                {
                     triggerModel.Daily.Apply(builder, triggerModel);
+                }
+
                 if (triggerModel.Type == TriggerType.Calendar)
+                {
                     triggerModel.Calendar.Apply(builder, triggerModel);
+                }
 
                 var trigger = builder.Build();
 
                 if (triggerModel.IsNew)
                 {
-                    await Scheduler.ScheduleJob(trigger);
+                    await Scheduler.ScheduleJob(trigger).ConfigureAwait(false);
                 }
                 else
                 {
-                    await Scheduler.RescheduleJob(new TriggerKey(triggerModel.OldTriggerName, triggerModel.OldTriggerGroup), trigger);
+                    await Scheduler.RescheduleJob(new TriggerKey(triggerModel.OldTriggerName, triggerModel.OldTriggerGroup), trigger).ConfigureAwait(false);
                 }
             }
 
@@ -183,47 +190,68 @@ namespace Quartzmin.Controllers
         }
 
         [HttpPost, JsonErrorResponse]
-        public async Task<IActionResult> Delete([FromBody] KeyModel model)
+        public async Task<IActionResult> DeleteAsync([FromBody] KeyModel model)
         {
-            if (!EnsureValidKey(model)) return BadRequest();
+            if (!EnsureValidKey(model))
+            {
+                return BadRequest();
+            }
 
             var key = model.ToTriggerKey();
 
-            if (!await Scheduler.UnscheduleJob(key))
+            if (!await Scheduler.UnscheduleJob(key).ConfigureAwait(false))
+            {
                 throw new InvalidOperationException("Cannot unschedule job " + key);
+            }
 
             return NoContent();
         }
 
         [HttpPost, JsonErrorResponse]
-        public async Task<IActionResult> Resume([FromBody] KeyModel model)
+        public async Task<IActionResult> ResumeAsync([FromBody] KeyModel model)
         {
-            if (!EnsureValidKey(model)) return BadRequest();
-            await Scheduler.ResumeTrigger(model.ToTriggerKey());
+            if (!EnsureValidKey(model))
+            {
+                return BadRequest();
+            }
+
+            await Scheduler.ResumeTrigger(model.ToTriggerKey()).ConfigureAwait(false);
             return NoContent();
         }
 
         [HttpPost, JsonErrorResponse]
-        public async Task<IActionResult> Pause([FromBody] KeyModel model)
+        public async Task<IActionResult> PauseAsync([FromBody] KeyModel model)
         {
-            if (!EnsureValidKey(model)) return BadRequest();
-            await Scheduler.PauseTrigger(model.ToTriggerKey());
+            if (!EnsureValidKey(model))
+            {
+                return BadRequest();
+            }
+
+            await Scheduler.PauseTrigger(model.ToTriggerKey()).ConfigureAwait(false);
             return NoContent();
         }
 
         [HttpPost, JsonErrorResponse]
-        public async Task<IActionResult> PauseJob([FromBody] KeyModel model)
+        public async Task<IActionResult> PauseJobAsync([FromBody] KeyModel model)
         {
-            if (!EnsureValidKey(model)) return BadRequest();
-            await Scheduler.PauseJob(model.ToJobKey());
+            if (!EnsureValidKey(model))
+            {
+                return BadRequest();
+            }
+
+            await Scheduler.PauseJob(model.ToJobKey()).ConfigureAwait(false);
             return NoContent();
         }
 
         [HttpPost, JsonErrorResponse]
-        public async Task<IActionResult> ResumeJob([FromBody] KeyModel model)
+        public async Task<IActionResult> ResumeJobAsync([FromBody] KeyModel model)
         {
-            if (!EnsureValidKey(model)) return BadRequest();
-            await Scheduler.ResumeJob(model.ToJobKey());
+            if (!EnsureValidKey(model))
+            {
+                return BadRequest();
+            }
+
+            await Scheduler.ResumeJob(model.ToJobKey()).ConfigureAwait(false);
             return NoContent();
         }
 
@@ -232,7 +260,9 @@ namespace Quartzmin.Controllers
         {
             var cron = Request.ReadAsString()?.Trim();
             if (string.IsNullOrEmpty(cron))
-                return Json(new { Description = "", Next = new object[0] });
+            {
+                return Json(new { Description = string.Empty, Next = new object[0] });
+            }
 
             string desc = "Invalid format.";
 
@@ -253,7 +283,10 @@ namespace Quartzmin.Controllers
                 {
                     var next = qce.GetNextValidTimeAfter(dt);
                     if (next == null)
+                    {
                         break;
+                    }
+
                     nextDates.Add(next.Value.LocalDateTime.ToDefaultFormat());
                     dt = next.Value.LocalDateTime;
                 }
@@ -264,21 +297,23 @@ namespace Quartzmin.Controllers
             return Json(new { Description = desc, Next = nextDates });
         }
 
-        private async Task<ITrigger> GetTrigger(TriggerKey key)
+        private async Task<ITrigger> GetTriggerAsync(TriggerKey key)
         {
-            var trigger = await Scheduler.GetTrigger(key);
+            var trigger = await Scheduler.GetTrigger(key).ConfigureAwait(false);
 
             if (trigger == null)
+            {
                 throw new InvalidOperationException("Trigger " + key + " not found.");
+            }
 
             return trigger;
         }
 
         [HttpGet, JsonErrorResponse]
-        public async Task<IActionResult> AdditionalData()
+        public async Task<IActionResult> AdditionalDataAsync()
         {
-            var keys = await Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup());
-            var history = await Scheduler.Context.GetExecutionHistoryStore().FilterLastOfEveryTrigger(10);
+            var keys = await Scheduler.GetTriggerKeys(GroupMatcher<TriggerKey>.AnyGroup()).ConfigureAwait(false);
+            var history = await Scheduler.Context.GetExecutionHistoryStore().FilterLastOfEveryTriggerAsync(10).ConfigureAwait(false);
             var historyByTrigger = history.ToLookup(x => x.Trigger);
 
             var list = new List<object>();
@@ -295,16 +330,13 @@ namespace Quartzmin.Controllers
             return View(list);
         }
 
-
         [HttpGet]
-        public Task<IActionResult> Duplicate(string name, string group)
+        public Task<IActionResult> DuplicateAsync(string name, string group)
         {
-            return Edit(name, group, clone: true);
+            return EditAsync(name, group, clone: true);
         }
 
-        bool EnsureValidKey(string name, string group) => !(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(group));
-        bool EnsureValidKey(KeyModel model) => EnsureValidKey(model.Name, model.Group);
-
+        private bool EnsureValidKey(string name, string group) => !(string.IsNullOrEmpty(name) || string.IsNullOrEmpty(group));
+        private bool EnsureValidKey(KeyModel model) => EnsureValidKey(model.Name, model.Group);
     }
-
 }

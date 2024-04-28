@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Quartzmin.Helpers
 {
     public class JsonErrorResponseAttribute : ActionFilterAttribute
     {
-        static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings();
+        private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings();
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {

@@ -1,15 +1,5 @@
-﻿using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http.Features;
 using Newtonsoft.Json.Linq;
-using Quartzmin.Helpers;
-using Quartzmin.Models;
-using Quartzmin.TypeHandlers;
 
 namespace Quartzmin.Controllers
 {
@@ -18,7 +8,7 @@ namespace Quartzmin.Controllers
         [HttpPost, JsonErrorResponse]
         public async Task<IActionResult> ChangeTypeAsync()
         {
-            var formData = await Request.GetFormDataAsync();
+            var formData = await Request.GetFormDataAsync().ConfigureAwait(false);
 
             TypeHandlerBase selectedType, targetType;
             try
@@ -31,7 +21,7 @@ namespace Quartzmin.Controllers
                 return new BadRequestResult { ReasonPhrase = "Unknown Type Handler" };
             }
 
-            var dataMapForm = (await formData.GetJobDataMapFormAsync(includeRowIndex: false)).SingleOrDefault(); // expected single row
+            var dataMapForm = (await formData.GetJobDataMapFormAsync(includeRowIndex: false).ConfigureAwait(false)).SingleOrDefault(); // expected single row
 
             object oldValue = selectedType.ConvertFrom(dataMapForm);
 
@@ -64,12 +54,16 @@ namespace Quartzmin.Controllers
             var etag = Services.TypeHandlers.LastModified.ETag();
 
             if (etag.Equals(GetETag()))
+            {
                 return NotModified();
+            }
 
             StringBuilder execStubBuilder = new StringBuilder();
             execStubBuilder.AppendLine();
             foreach (var func in new[] { "init" })
+            {
                 execStubBuilder.AppendLine(string.Format("if (f === '{0}' && {0} !== 'undefined') {{ {0}.call(this); }}", func));
+            }
 
             string execStub = execStubBuilder.ToString();
 

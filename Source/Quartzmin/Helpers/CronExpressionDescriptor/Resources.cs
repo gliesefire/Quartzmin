@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace CronExpressionDescriptor
+﻿namespace CronExpressionDescriptor
 {
     internal static class Resources
     {
@@ -58,7 +56,10 @@ namespace CronExpressionDescriptor
         public static string GetString(string name)
         {
             if (_strings.TryGetValue(name, out var result))
+            {
                 return result;
+            }
+
             return null;
         }
     }

@@ -24,7 +24,7 @@ public class AuthController : PageControllerBase
             return BadRequest("Failed!");
         }
 
-        var validUser = await ValidateUserAsync(modelData);
+        var validUser = await ValidateUserAsync(modelData).ConfigureAwait(false);
         if (validUser == null)
         {
             return BadRequest("Failed! No user found!");
@@ -50,7 +50,7 @@ public class AuthController : PageControllerBase
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(claimsIdentity),
-            authProperties);
+            authProperties).ConfigureAwait(false);
 
         var returnPath = string.IsNullOrEmpty(Services.Options.WebAppName)
             ? Services.Options.VirtualPathRoot
@@ -64,7 +64,7 @@ public class AuthController : PageControllerBase
     {
         // Clear the existing external cookie
         await HttpContext.SignOutAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme);
+            CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
 
         return RedirectToAction("Login");
     }
@@ -83,7 +83,7 @@ public class AuthController : PageControllerBase
             await System.IO.File.WriteAllTextAsync(usersFile, defaultContent).ConfigureAwait(false);
         }
 
-        var content = await System.IO.File.ReadAllTextAsync(usersFile);
+        var content = await System.IO.File.ReadAllTextAsync(usersFile).ConfigureAwait(false);
         users = JsonConvert.DeserializeObject<List<SystemUser>>(content);
 
         return users?.FirstOrDefault(u =>

@@ -37,9 +37,9 @@ internal class HandlebarsHelpers
         h.RegisterHelper("SerializeTypeHandler",
             (o, c, a) => o.WriteSafeString(_services.TypeHandlers.Serialize((TypeHandlerBase)c.Value)));
         h.RegisterHelper("Disabled",
-            (o, c, a) => { if (IsTrue(a[0])) o.Write("disabled"); });
+            (o, c, a) => { if (IsTrue(a[0])) { o.Write("disabled"); } });
         h.RegisterHelper("Checked",
-            (o, c, a) => { if (IsTrue(a[0])) o.Write("checked"); });
+            (o, c, a) => { if (IsTrue(a[0])) { o.Write("checked"); } });
         h.RegisterHelper("nvl",
             (o, c, a) => o.Write(a[a[0] == null ? 1 : 0]));
         h.RegisterHelper("not", (o, c, a) => o.Write(IsTrue(a[0]) ? "False" : "True"));
@@ -76,11 +76,11 @@ internal class HandlebarsHelpers
             (o, c, a) => ProductName(o, c, a));
     }
 
-    static bool IsTrue(object value) => value?.ToString()?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
+    private static bool IsTrue(object value) => value?.ToString()?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
 
-    string HtmlEncode(object value) => _services.ViewEngine.Encode(value);
+    private string HtmlEncode(object value) => _services.ViewEngine.Encode(value);
 
-    string UrlEncode(string value) => HttpUtility.UrlEncode(value);
+    private string UrlEncode(string value) => HttpUtility.UrlEncode(value);
 
     private string BaseUrl
     {
@@ -111,7 +111,7 @@ internal class HandlebarsHelpers
 
         var anchorIndex = uri.IndexOf('#');
         var uriToBeAppended = uri;
-        var anchorText = "";
+        var anchorText = string.Empty;
 
         // If there is an anchor, then the query string must be inserted before its first occurence.
         if (anchorIndex != -1)

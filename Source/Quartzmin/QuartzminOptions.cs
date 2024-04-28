@@ -11,7 +11,7 @@ public class QuartzminOptions
     /// </summary>
     public string Logo { get; set; } = "Content/Images/logo.png";
 
-    public string ProductName { get; set; } = "";
+    public string ProductName { get; set; } = string.Empty;
 
     private string _virtualPathRoot = "/";
     public string VirtualPathRoot

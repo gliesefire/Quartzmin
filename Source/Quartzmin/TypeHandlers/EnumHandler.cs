@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Quartzmin.TypeHandlers
 {
@@ -21,7 +17,9 @@ namespace Quartzmin.TypeHandlers
         public override bool CanHandle(object value)
         {
             if (value == null)
+            {
                 return false;
+            }
 
             return EnumType.IsAssignableFrom(value.GetType());
         }
@@ -29,10 +27,14 @@ namespace Quartzmin.TypeHandlers
         public override object ConvertFrom(object value)
         {
             if (value == null)
+            {
                 return null;
+            }
 
             if (EnumType.IsAssignableFrom(value.GetType()))
+            {
                 return value;
+            }
 
             if (value is string str)
             {
@@ -49,7 +51,7 @@ namespace Quartzmin.TypeHandlers
             return null;
         }
 
-        string GetDisplayName(string enumValue)
+        private string GetDisplayName(string enumValue)
         {
             return EnumType?
                 .GetMember(enumValue)?.First()?

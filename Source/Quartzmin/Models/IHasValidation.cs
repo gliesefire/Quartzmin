@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Quartzmin.Models
+﻿namespace Quartzmin.Models
 {
     public interface IHasValidation
     {

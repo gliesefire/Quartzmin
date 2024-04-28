@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Quartz.Plugins.RecentHistory;
-
-namespace Quartzmin.Controllers
+﻿namespace Quartzmin.Controllers
 {
     public class HistoryController : PageControllerBase
     {
@@ -21,7 +14,7 @@ namespace Quartzmin.Controllers
                 return View(null);
             }
 
-            IEnumerable<ExecutionHistoryEntry> history = await store.FilterLast(100);
+            IEnumerable<ExecutionHistoryEntry> history = await store.FilterLastAsync(100).ConfigureAwait(false);
 
             var list = new List<object>();
 

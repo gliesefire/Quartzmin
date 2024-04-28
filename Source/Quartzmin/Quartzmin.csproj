@@ -31,9 +31,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Handlebars.Net" Version="2.1.4" />
+        <PackageReference Include="Handlebars.Net" Version="2.1.*" />
         <PackageReference Include="JsonSubTypes" Version="2.0.1" />
-        <PackageReference Include="Quartz" Version="3.7.0" />
+        <PackageReference Include="Quartz" Version="3.8.*" />
         <PackageReference Update="Nerdbank.GitVersioning">
             <Version>3.6.133</Version>
         </PackageReference>
@@ -44,7 +44,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.13" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.13" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="7.0.0" />

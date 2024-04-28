@@ -1,9 +1,4 @@
-﻿using Quartz;
-using Quartz.Impl.Matchers;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Quartzmin
+﻿namespace Quartzmin
 {
     internal class Cache
     {
@@ -31,10 +26,12 @@ namespace Quartzmin
                                 var detail = _services.Scheduler.GetJobDetail(key).GetAwaiter().GetResult();
                                 knownTypes.Add(detail.JobType.RemoveAssemblyDetails());
                             }
+
                             UpdateJobTypes(knownTypes);
                         }
                     }
                 }
+
                 return _jobTypes;
             }
         }
@@ -42,9 +39,11 @@ namespace Quartzmin
         public void UpdateJobTypes(IEnumerable<string> list)
         {
             if (_jobTypes != null)
+            {
                 list = list.Concat(_jobTypes); // append existing types
+            }
+
             _jobTypes = list.Distinct().OrderBy(x => x).ToArray();
         }
-
     }
 }

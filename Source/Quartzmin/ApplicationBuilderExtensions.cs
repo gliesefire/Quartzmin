@@ -30,7 +30,7 @@ public static class ApplicationBuilderExtensions
         app.Use(async (context, next) =>
         {
             context.Items[typeof(Services)] = services;
-            await next.Invoke(context);
+            await next.Invoke(context).ConfigureAwait(false);
         });
 
         app.UseExceptionHandler(errorApp =>
@@ -40,7 +40,7 @@ public static class ApplicationBuilderExtensions
                 var ex = context.Features.Get<IExceptionHandlerFeature>()?.Error;
                 context.Response.StatusCode = 500;
                 context.Response.ContentType = "text/html";
-                await context.Response.WriteAsync(services.ViewEngine.ErrorPage(ex));
+                await context.Response.WriteAsync(services.ViewEngine.ErrorPage(ex)).ConfigureAwait(false);
             });
         });
 

@@ -13,18 +13,26 @@ public class FileHandler : TypeHandlerBase
     public override object ConvertFrom(Dictionary<string, object> formData)
     {
         if (formData.TryGetValue("data-map[old-file-value]", out var oldData))
+        {
             return ConvertFrom(Convert.FromBase64String((string)oldData));
+        }
         else
+        {
             return base.ConvertFrom(formData);
+        }
     }
 
     public override object ConvertFrom(object value)
     {
         if (value is byte[])
+        {
             return value;
+        }
 
         if (value is string str)
+        {
             return Encoding.UTF8.GetBytes(str);
+        }
 
         if (value is FormFile file)
         {
